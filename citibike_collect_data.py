@@ -29,11 +29,11 @@ def get_local_citi_df(lat_,lng_,citi_):
         Citi bike data with Start and End Stations within a square box of
         given latitude and longitude.
     '''
-    citi_local = citi_[(citi_['Start Station Latitude'].between(lat_-.005, lat_+.005) & 
-                      citi_['Start Station Longitude'].between(lng_-.005, lng_+.005))
-                     |
-                     (citi_['End Station Latitude'].between(lat_-.005, lat_+.005) & 
-                      citi_['End Station Longitude'].between(lng_-.005, lng_+.005))]
+    citi_local = citi_[(((citi_.loc[:,'Start Station Latitude']-lat_)**2 + 
+                         (citi_.loc[:,'Start Station Longitude']-lng_)**2)**.5<=.005)
+                       |
+                       (((citi_.loc[:,'End Station Latitude']-lat_)**2 + 
+                         (citi_.loc[:,'End Station Longitude']-lng_)**2)**.5<=.005)]
     return citi_local
 
 def get_year_month_list(start_month, start_year, end_month, end_year):
@@ -47,9 +47,8 @@ def get_year_month_list(start_month, start_year, end_month, end_year):
         year_month_list += [y+m]
     return year_month_list
 
-
-lat = 40.7025048
-lng = -73.9210679
+lat = 40.7116453
+lng = -73.9513869
 
 year_month_list = get_year_month_list(4, 2016, 4, 2021)
 
@@ -64,7 +63,7 @@ citi_local_all = pd.concat(citi_locals, axis=0, ignore_index=True)
 #2020-2021 is all good
 
 
-citi_local_all.to_csv('citi_bike_local.csv')
+citi_local_all.to_csv('citi_bike_local_julie.csv')
 
 
 
