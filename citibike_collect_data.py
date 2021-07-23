@@ -8,7 +8,7 @@ Created on Wed Jul 21 11:38:48 2021
 
 import pandas as pd
 
-def get_local_citi_df(lat_,lng_,citi_):
+def get_monthy_local_citi_df(lat_,lng_,citi_):
     '''
     Filters Citi bike trip DataFrame to have a Start or End Station
     within +/- 0.005 latitude and longitude
@@ -47,23 +47,27 @@ def get_year_month_list(start_month, start_year, end_month, end_year):
         year_month_list += [y+m]
     return year_month_list
 
-lat = 40.7116453
-lng = -73.9513869
+def get_all_local_citi_df(lat, lng, file_name, 
+                          start_month=4, start_year=2016, 
+                          end_month=4, end_year=2021):
+    
+    year_month_list = get_year_month_list(start_month, start_year, 
+                                          end_month, end_year)
+    citi_locals = list()
+    for year_month in year_month_list:
+        citi = pd.read_parquet(f'https://s3.amazonaws.com/ctbk/20{year_month}-citibike-tripdata.parquet')
+        citi_local = get_monthy_local_citi_df(lat,lng,citi)
+        citi_locals.append(citi_local)
+    citi_local_all = pd.concat(citi_locals, axis=0, ignore_index=True)
+    citi_local_all.to_csv('{file_name}.csv')
 
-year_month_list = get_year_month_list(4, 2016, 4, 2021)
-
-
-citi_locals = list()
-for year_month in year_month_list:
-    citi = pd.read_parquet(f'https://s3.amazonaws.com/ctbk/20{year_month}-citibike-tripdata.parquet')
-    citi_local = get_local_citi_df(lat,lng,citi)
-    citi_locals.append(citi_local)
-citi_local_all = pd.concat(citi_locals, axis=0, ignore_index=True)
+    return citi_local_all
 # 04-19 is start of 2019 having reports here.
 #2020-2021 is all good
+lat = 40.7560568
+lng = -73.9834879
+citi_local_sara = get_all_local_citi_df(lat, lng, 'citi_bike_local_sara')
 
-
-citi_local_all.to_csv('citi_bike_local_julie.csv')
 
 
 
